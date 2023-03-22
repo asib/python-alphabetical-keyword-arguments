@@ -1,0 +1,6 @@
+-c requirements.txt
+pre-commit
+pip-tools
+pytest
+flake8
+mypy
