@@ -4,3 +4,15 @@
 #
 #    pip-compile
 #
+libcst==0.4.9
+    # via -r requirements.in
+mypy-extensions==1.0.0
+    # via typing-inspect
+pyyaml==6.0
+    # via libcst
+typing-extensions==4.5.0
+    # via
+    #   libcst
+    #   typing-inspect
+typing-inspect==0.8.0
+    # via libcst

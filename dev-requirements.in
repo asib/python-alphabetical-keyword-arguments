@@ -4,3 +4,4 @@ pip-tools
 pytest
 flake8
 mypy
+black
