@@ -2,9 +2,8 @@ import libcst as cst
 import pytest
 from precisely import assert_that, equal_to
 
-from python_alphabetical_keyword_arguments.transformer import (
-    FunctionParametersTransformer,
-)
+from python_alphabetical_keyword_arguments.transformer import \
+    FunctionParametersTransformer
 
 
 def _result(code: str) -> str:
