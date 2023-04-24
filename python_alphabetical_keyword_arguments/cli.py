@@ -12,11 +12,20 @@ def run(
     *,
     check: bool,
     path: pathlib.Path,
+    print_changes: bool,
 ) -> bool:
     if path.is_file():
-        return _run_file(path=path, check=check)
+        return _run_file(
+            path=path,
+            check=check,
+            print_changes=print_changes,
+        )
     elif path.is_dir():
-        return _run_directory(path=path, check=check)
+        return _run_directory(
+            path=path,
+            check=check,
+            print_changes=print_changes,
+        )
     else:
         raise Exception("unknown path type")
 
@@ -25,6 +34,7 @@ def _run_file(
     *,
     check: bool,
     path: pathlib.Path,
+    print_changes: bool,
 ) -> bool:
     code = path.read_text()
     transformer = FunctionParametersTransformer()
@@ -35,6 +45,9 @@ def _run_file(
     if not check:
         path.write_text(modified_tree.code)
 
+    if print_changes and code != modified_tree.code:
+        print(f"// -- {path.name} --:\n{modified_tree.code}")
+
     return code != modified_tree.code
 
 
@@ -42,6 +55,7 @@ def _run_directory(
     *,
     check: bool,
     path: pathlib.Path,
+    print_changes: bool,
 ) -> bool:
     did_rewrite = False
 
@@ -50,6 +64,7 @@ def _run_directory(
             _run_file(
                 path=pathlib.Path(directory_path, file_name),
                 check=check,
+                print_changes=print_changes,
             )
             for file_name in file_names
             if file_name.endswith(".py")

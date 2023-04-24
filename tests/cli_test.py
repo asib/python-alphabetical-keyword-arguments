@@ -1,3 +1,5 @@
+from contextlib import redirect_stdout
+import io
 import pathlib
 import tempfile
 from typing import List
@@ -50,7 +52,7 @@ def test_file_rewrite(
 ) -> None:
     file.write_text(input_contents)
 
-    rewrite_was_not_trivial = run(path=file, check=False)
+    rewrite_was_not_trivial = run(path=file, check=False, print_changes=False)
 
     assert_that(file.read_text(), equal_to(output_contents))
     assert_that(
@@ -87,7 +89,9 @@ def test_directory_rewrite(
         file.flush()
         file_paths.append(directory / file.name)
 
-    rewrite_was_not_trivial = run(path=directory, check=False)
+    rewrite_was_not_trivial = run(
+        path=directory, check=False, print_changes=False
+    )
 
     for file_path, output_code in zip(file_paths, output_contents):
         assert_that(file_path.read_text(), equal_to(output_code))
@@ -111,7 +115,7 @@ def test_file_check_does_not_write_file(file: pathlib.Path) -> None:
     input_code = """def f(*, y, x): pass"""
     file.write_text(input_code)
 
-    would_rewrite = run(path=file, check=True)
+    would_rewrite = run(path=file, check=True, print_changes=False)
 
     assert_that(file.read_text(), equal_to(input_code))
     assert_that(would_rewrite, equal_to(True))
@@ -125,8 +129,32 @@ def test_directory_check_does_not_write_files(directory: pathlib.Path) -> None:
     file_a.write_text(input_a)
     file_b.write_text(input_b)
 
-    would_rewrite = run(path=directory, check=True)
+    would_rewrite = run(path=directory, check=True, print_changes=False)
 
     assert_that(file_a.read_text(), equal_to(input_a))
     assert_that(file_b.read_text(), equal_to(input_b))
     assert_that(would_rewrite, equal_to(True))
+
+
+def test_print_changes_outputs_changes_to_stdout(file: pathlib.Path) -> None:
+    input_code = "def f(*, y, x): pass"
+    file.write_text(input_code)
+
+    with redirect_stdout(io.StringIO()) as output_code:
+        run(path=file, check=True, print_changes=True)
+
+    assert_that(
+        output_code.getvalue(),
+        equal_to(f"// -- {file.name} --:\ndef f(*, x, y, ): pass\n"),
+    )
+
+
+def test_print_changes_does_not_output_unchanged_file(
+    file: pathlib.Path,
+) -> None:
+    file.write_text("def f(): pass")
+
+    with redirect_stdout(io.StringIO()) as output:
+        run(path=file, check=True, print_changes=True)
+
+    assert_that(output.getvalue(), equal_to(""))
