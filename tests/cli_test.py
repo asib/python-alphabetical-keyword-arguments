@@ -37,7 +37,7 @@ def _fixture_directory(tmp_path: pathlib.Path):
         ),
         pytest.param(
             """def f(*, x, y): pass""",
-            """def f(*, x, y): pass""",
+            """def f(*, x, y, ): pass""",
             id="rewrite case",
         ),
     ),

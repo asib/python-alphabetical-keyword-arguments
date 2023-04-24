@@ -18,6 +18,16 @@ class FunctionParametersTransformer(cst.CSTTransformer):
             key=lambda param: param.name.value,
         )
 
+        sorted_keyword_parameters = [
+            param.with_changes(
+                comma=cst.Comma(
+                    whitespace_after=cst.SimpleWhitespace(" "),
+                    whitespace_before=cst.SimpleWhitespace(""),
+                )
+            )
+            for param in sorted_keyword_parameters
+        ]
+
         return updated_node.with_changes(
             params=original_node.params.with_changes(
                 kwonly_params=sorted_keyword_parameters
